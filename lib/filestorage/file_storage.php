@@ -205,9 +205,62 @@ class file_storage {
         if ($filename === '') {
             $filename = '.';
         }
-
+        
         $pathnamehash = $this->get_pathname_hash($contextid, $component, $filearea, $itemid, $filepath, $filename);
-        return $this->get_file_by_hash($pathnamehash);
+        $original_file_record = $this->get_file_by_hash($pathnamehash);
+        
+         
+        // define image sizes - should be defined globaly and available as a setting
+        $sizes = array(
+            'thumbnail' => array(
+                'width' => 100,
+                'height' => 100,
+            ),
+            'small' => array(
+                'width' => 200,
+                'height' => 200,
+            ),
+            'medium' => array(
+                'width' => 400,
+                'height' => 400,
+            ),
+            'large' => array(
+                'width' => 800,
+                'height' => 800,
+            ),
+        );
+            
+            
+        // try to get alternate sized file
+        // make sure this size is a defined media size!!
+        if(isset($_GET['size']) && in_array($_GET['size'],  array_keys($sizes))) {
+            
+            $size = $_GET['size'];
+            $other_filename = $size.'_'.$filename;
+            $width = $sizes[($size)]['width'];
+            $height = $sizes[($size)]['height'];
+            
+            // if file does not exist, create one
+            if(!$this->file_exists($contextid, $component, $filearea, $itemid, $filepath, $other_filename)) {
+            
+                $new_file_record = array('contextid'=>$contextid, 'component'=>$component, 'filearea'=>$filearea,
+                                    'itemid'=>$itemid, 'filepath'=>$filepath,
+                                    'filename'=>$other_filename, 'userid'=>$original_file_record->get_userid());
+
+                $new_file_record = $this->convert_image($new_file_record, $original_file_record, $width, $height);
+                
+                return $new_file_record;
+                
+            } else {
+                
+                $alt_pathnamehash = $this->get_pathname_hash($contextid, $component, $filearea, $itemid, $filepath, $other_filename);
+                return $this->get_file_by_hash($alt_pathnamehash);
+                
+            }
+            
+        }
+        
+        return $original_file_record;
     }
 
     /**
