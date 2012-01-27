@@ -206,8 +206,6 @@ class file_storage {
             $filename = '.';
         }
         
-        $pathnamehash = $this->get_pathname_hash($contextid, $component, $filearea, $itemid, $filepath, $filename);
-        $original_file_record = $this->get_file_by_hash($pathnamehash);
         
          
         // define image sizes - should be defined globaly and available as a setting
@@ -229,16 +227,31 @@ class file_storage {
                 'height' => 800,
             ),
         );
+        
+        $available_sizes = array_keys($sizes);
+        
+        $filepaths = explode('/',$filepath);
+        if($filepaths[1] == 'size' && in_array($filepaths[2], $available_sizes)) {
+            unset($filepaths[1]);
+            $thisSize = $filepaths[2];
+            
+            unset($filepaths[2]);
+            
+            $filepath = implode('/',$filepaths);
+        }
+        
+        
+        $pathnamehash = $this->get_pathname_hash($contextid, $component, $filearea, $itemid, $filepath, $filename);
+        $original_file_record = $this->get_file_by_hash($pathnamehash);
             
             
         // try to get alternate sized file
         // make sure this size is a defined media size!!
-        if(isset($_GET['size']) && in_array($_GET['size'],  array_keys($sizes))) {
+        if(isset($thisSize)) {
             
-            $size = $_GET['size'];
-            $other_filename = $size.'_'.$filename;
-            $width = $sizes[($size)]['width'];
-            $height = $sizes[($size)]['height'];
+            $other_filename = $thisSize.'_'.$filename;
+            $width = $sizes[($thisSize)]['width'];
+            $height = $sizes[($thisSize)]['height'];
             
             // if file does not exist, create one
             if(!$this->file_exists($contextid, $component, $filearea, $itemid, $filepath, $other_filename)) {
