@@ -156,5 +156,14 @@ if ($hassiteconfig) { // speedup for non-admins, add all caps used on this page
     $temp->add(new admin_setting_configtextarea('additionalhtmlfooter', new lang_string('additionalhtmlfooter', 'admin'), new lang_string('additionalhtmlfooter_desc', 'admin'), '', PARAM_RAW));
     $ADMIN->add('appearance', $temp);
 
+    
+    // "media size" settings
+    $temp = new admin_settingpage('imagesize', new lang_string('imagesize', 'admin'));
+    $temp->add(new admin_setting_configtext('imagesizethumbnail', new lang_string('imagesizethumbnail', 'admin'), new lang_string('imagesizethumbnail_desc', 'admin'), '100'));
+    $temp->add(new admin_setting_configtext('imagesizesmall', new lang_string('imagesizesmall', 'admin'), new lang_string('imagesizesmall_desc', 'admin'), '200'));
+    $temp->add(new admin_setting_configtext('imagesizemedium', new lang_string('imagesizemedium', 'admin'), new lang_string('imagesizemedium_desc', 'admin'), '400'));
+    $temp->add(new admin_setting_configtext('imagesizelarge', new lang_string('imagesizelarge', 'admin'), new lang_string('imagesizelarge_desc', 'admin'), '800'));
+    $ADMIN->add('appearance', $temp);
+    
 } // end of speedup
 

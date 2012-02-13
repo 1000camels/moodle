@@ -199,6 +199,8 @@ class file_storage {
      * @return stored_file instance if exists, false if not
      */
     public function get_file($contextid, $component, $filearea, $itemid, $filepath, $filename) {
+        global $CFG;
+        
         $filepath = clean_param($filepath, PARAM_PATH);
         $filename = clean_param($filename, PARAM_FILE);
 
@@ -207,31 +209,14 @@ class file_storage {
         }
         
         
-         
-        // define image sizes - should be defined globaly and available as a setting
-        $sizes = array(
-            'thumbnail' => array(
-                'width' => 100,
-                'height' => 100,
-            ),
-            'small' => array(
-                'width' => 200,
-                'height' => 200,
-            ),
-            'medium' => array(
-                'width' => 400,
-                'height' => 400,
-            ),
-            'large' => array(
-                'width' => 800,
-                'height' => 800,
-            ),
-        );
         
-        $available_sizes = array_keys($sizes);
+        // If size is specified and it matches one of our predefined sizes, get that instead
         
         $filepaths = explode('/',$filepath);
-        if($filepaths[1] == 'size' && in_array($filepaths[2], $available_sizes)) {
+        if(isset($filepaths[2])) $imagesize = 'imagesize'.strtolower($filepaths[2]);
+        
+        if($filepaths[1] == 'size' && isset($imagesize) && isset($CFG->$imagesize)) {
+        
             unset($filepaths[1]);
             $thisSize = $filepaths[2];
             
@@ -250,8 +235,8 @@ class file_storage {
         if(isset($thisSize)) {
             
             $other_filename = $thisSize.'_'.$filename;
-            $width = $sizes[($thisSize)]['width'];
-            $height = $sizes[($thisSize)]['height'];
+            $width = $CFG->$imagesize;
+            $height = $CFG->$imagesize;
             
             // if file does not exist, create one
             if(!$this->file_exists($contextid, $component, $filearea, $itemid, $filepath, $other_filename)) {
